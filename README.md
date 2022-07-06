@@ -36,7 +36,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 5. TODO ...
 
-### Why Terraform?
+### Why Terraform(Tf)?
 
 - **I**nfrastructure **A**s **C**ode represents a mindset of executing code to *define*, *deploy, update and destroy infrastructure*
 - There are 5 categories of IAC tools
@@ -45,8 +45,13 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
   - **Server templating tools** - Docker, Packer, Vagrant, Virtual Machines or Containers (Immutable infrastructure)
   - **Orchestration tools** - Kubernetes, Marathon, Mesos, Amazon ECS, Docker Swarn or a Pod of Dockers and Nomad
   - **Provisioning tools** - Terraform, Cloud-Formation and Openstack Heat 
-- Terraform, wriiten on GI, makes API calls to the relevant API translating one or more providers consistently, defining entire infrastructure - servers, databases
-- What Terraform is not, an easy way to just swap between different cloud providers with the same settings, mainly because providers offer different solutions (no easy way to transparently port from one to another)
+- Tf is written in Go, makes API calls to the relevant **API translating** one or more *providers* consistently, defining entire infrastructure - servers, databases
+- What **Tf is not**, an easy way to just swap between different cloud providers with the same settings, mainly because providers offer different solutions (no easy way to transparently port from one to another)
+- Tf uses a **declarative** approach, meaning it declares how the *desired state* or end result, where as Puppet uses a **procedural** approach, so it may change what exists versus what you knewly configured
+- Procedural approaches also do not take into the account the state and history of the infrastructure, but the down side is that declaritive has no concept of *zero-downtime deployments* but clever hacks to solve this
+- Tf is one of the youngest IaC tools, making it the least mature
+
+### Getting started with Terraform
 
 ### How to manage Terraform state
 
