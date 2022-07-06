@@ -42,17 +42,18 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 ### How to test Terraform code
 
+### Terraform and the CICD depoloyment process
+
 ### The docs
 
-In the root of ths repository, there is an [example.tf](./example.tf) file that can demonstrate syntax highlighting and some resources by area
+In the root of ths repository, there is an [example.tf](./example.tf) file, that can demonstrate syntax highlighting and some resources by area
 
-- [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (Procfile usually generates some of this)
+- [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (*Procfile* and *runtime.txt* usually generates some of this)
   - [Cloudfoundry org resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
   - [Cloudfoundry space resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/space.md)
   - [Cloudfoundry app resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/app.md)
   - [Cloudfoundry service resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/service_key.md)
   - [Cloudfoundry build pack](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/buildpack.md) (stored in runtime.txt file in deployed app)
-  - 
 
 ### The videos
 
@@ -62,4 +63,8 @@ In the root of ths repository, there is an [example.tf](./example.tf) file that 
 ### The book
 
 - **Terraform** *Up & running* writing infrastructure as a code by *Yevgeniy Brakeman*
+
+  # Conclusion
+
+  Why would anyone go with Terraform on Cloudfoundry? TODO: Summarise key concepts and benefits
 
