@@ -39,3 +39,11 @@ resource "cloudfoundry_service_key" "redis1-key1" {
   name = "pricing-grid-key1"
   service_instance = cloudfoundry_service_instance.redis.id
 }
+
+# https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/buildpack.md
+resource "cloudfoundry_buildpack" "tomee" {
+    name = "tomcat-enterprise-edition"
+    path = "https://github.com/cloudfoundry-community/tomee-buildpack/releases/download/v3.17/tomee-buildpack-v3.17.zip"
+    position = "12"
+    enable = true
+}
