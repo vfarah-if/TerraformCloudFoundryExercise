@@ -1,10 +1,12 @@
 # Introduction
 
-Why Terraform? DevOps is transforming the way we run software, the benefits of *infrastructure as code* is becoming more obvious in how we can provision entire environments without manually needing to do anything, with tests and debugging to help setup idempotence, conventions and distibution in all environments. There is also a concept known as *configuration drift*, where an environment differs from others, and will end up as a snowflak serve. As the company grows, this will become more problematic.
+Why Terraform? DevOps is transforming the way we run software, the benefits of _infrastructure as code_ is becoming more obvious in how we can provision entire environments without manually needing to do anything, with tests and debugging to help setup idempotence, conventions and distibution in all environments. There is also a concept known as _configuration drift_, where an environment differs from others, and will end up as a snowflak serve. As the company grows, this will become more problematic.
 
-*Statistically*, companies that apply good DevOps practises increase  the number of features delivered by 100%, reduce lead times (the time coming up with an idea to running code in production) by 60%, and reduce production incidents by 60 to 90%.
+_Statistically_, companies that apply good DevOps practises increase the number of features delivered by 100%, reduce lead times (the time coming up with an idea to running code in production) by 60%, and reduce production incidents by 60 to 90%.
 
 This is at the heart of chaos engineering and also a very good way of documenting and versioning with speed, safely and reliably. 
+
+Cloudfoundry is the provider I am using, but as you know will be discontinued soon. This is my provider and reason for doing this but the same rules can be applied to other providers.
 
 # Get Started with Terraform and cloudfoundry
 
@@ -20,7 +22,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
    terraform --version	# >Terraform v1.2.4 on darwin_amd64
    ```
 
-2. Download **cloud foundry [terraform provider](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry)** which can be done at https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/wiki like below or do it manually based on the 
+2. Download **cloud foundry [terraform provider](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry)** which can be done at https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/wiki like below or do it manually based on the
 
    ```bash
    bash -c "$(curl -fsSL https://raw.github.com/cloudfoundry-community/terraform-provider-cloudfoundry/master/bin/install.sh)"
@@ -28,30 +30,81 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
    ![image-20220705212222253](./terraform-cloudfoundry-provider.png)
 
-3. Initialise cloudfoundry provider (What does this mean and is it through provider syntax?)
+3. Initialise cloudfoundry provider `terraform init`
 
-4. Setup an IDE like IntelliJ or *VSCode* with terraform plugins and syntax highlighting 
+4. Setup an IDE like IntelliJ or _VSCode_ with terraform plugins and syntax highlighting
 
    ![image-20220705215417337](./vs-code-extension.png)
 
-5. TODO ...
-
 ### Why Terraform(Tf)?
 
-- **I**nfrastructure **A**s **C**ode represents a mindset of executing code to *define*, *deploy, update and destroy infrastructure*
+- **I**nfrastructure **A**s **C**ode represents a mindset of executing code to _define_, _deploy, update and destroy infrastructure_
 - There are 5 categories of IAC tools
   - **Adhoc scripts** - Bash, Ruby Python, Powershell
   - **Configuration management tools** - Chef, Puppet, Ansible and SaltStack
   - **Server templating tools** - Docker, Packer, Vagrant, Virtual Machines or Containers (Immutable infrastructure)
   - **Orchestration tools** - Kubernetes, Marathon, Mesos, Amazon ECS, Docker Swarn or a Pod of Dockers and Nomad
-  - **Provisioning tools** - Terraform, Cloud-Formation and Openstack Heat 
-- Tf is written in Go, makes API calls to the relevant **API translating** one or more *providers* consistently, defining entire infrastructure - servers, databases
+  - **Provisioning tools** - Terraform, Cloud-Formation and Openstack Heat
+- Tf is written in Go, makes API calls to the relevant **API translating** one or more _providers_ consistently, defining entire infrastructure - servers, databases using **H**ashiCorp **C**onfiguration **L**anguage
 - What **Tf is not**, an easy way to just swap between different cloud providers with the same settings, mainly because providers offer different solutions (no easy way to transparently port from one to another)
-- Tf uses a **declarative** approach, meaning it declares how the *desired state* or end result, where as Puppet uses a **procedural** approach, so it may change what exists versus what you knewly configured
-- Procedural approaches also do not take into the account the state and history of the infrastructure, but the down side is that declaritive has no concept of *zero-downtime deployments* but clever hacks to solve this
+- Tf uses a **declarative** approach, meaning it declares how the _desired state_ or end result, where as Puppet uses a **procedural** approach, so it may change what exists versus what you knewly configured
+- Procedural approaches also do not take into the account the state and history of the infrastructure, but the down side is that declaritive has no concept of _zero-downtime deployments_ but clever hacks to solve this
 - Tf is one of the youngest IaC tools, making it the least mature
 
 ### Getting started with Terraform
+
+- The extension is <file>.tf calling **provider**s like AWS, Azure and [Cloudfoundry](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) `provider "<NAME>"`
+
+  ```haskell
+  provider "cloudfoundry" {
+  		[CONFIG ...]
+  }
+  ```
+
+  ![image-20220707151724344](./terraform-providers.png)
+
+- For each type of provider **resource**s the provider type and name `resource "<PROVIDER_TYPE>" "<NAME>"`
+
+  ```haskell
+  resource "cloudfoundry_space" "s1" {
+      [CONFIG ...]
+  }
+  ```
+
+- **Reference**s allow you to access other parts of the code `<PROVIDER>_<TYPE>.<NAME>.<ATTRIBUTE>`
+
+- **Variable**s `variable "<NAME>" {[CONFIG ...]}` and configure some information about the variable like below, and type can consist of a *string, number, bool, list, map, set, object, tuple and any* 
+
+  ```haskell
+  variable "api_url" {
+      description = "API URL"
+      type = string
+      default = "https://api.london.uk"
+  }
+  var.api_url
+  ```
+
+- **Terraform Actions** `terraform -help`
+
+  - `terraform init` Initialise within the folder
+
+  - `terraform validate` check configuration
+
+  - `terraform plan` Run assigning variable values and see what will happen without making any changes
+
+  - `terraform apply` This create or update existing
+
+  - `terraform destroy` Destroy previous infrastructure
+
+  - `terraform graph` Create a dependency graph
+
+    ![image-20220707163132369](./terraform-help.png)
+
+- **Note** Tf keeps track of the **state** or resources that are already deployed. Setup gitignore if you don't want that stored in GIT
+
+  ![image-20220707154103262](./gitignore-config.png)
+
+-
 
 ### How to manage Terraform state
 
@@ -65,9 +118,9 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 ### The docs
 
-In the root of ths repository, there is an [example.tf](./example.tf) file, that can demonstrate syntax highlighting and some resources by area
+In the root of ths repository, there is an [example.tf](./example/main.tf) file, that can demonstrate syntax highlighting and some resources by area
 
-- [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (*Procfile* and *runtime.txt* usually generates some of this)
+- [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (_Procfile_ and _runtime.txt_ usually generates some of this) https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest/docs
   - [Cloudfoundry org resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
   - [Cloudfoundry space resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/space.md)
   - [Cloudfoundry app resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/app.md)
@@ -77,17 +130,20 @@ In the root of ths repository, there is an [example.tf](./example.tf) file, that
 ### The videos
 
 - [Terraform Providers for Cloud Foundry - Guillaume Berche, Orange & Mevan Samaratunga, Pivotal](https://www.youtube.com/watch?v=JonQqWHofms)
--  TODO more if any gret resources available
+- TODO more if any resources available
 
 ### The book
 
-- **Terraform** *Up & running* writing infrastructure as a code by *Yevgeniy Brakeman*
+- **Terraform** _Up & running_ writing infrastructure as a code by _Yevgeniy Brakeman_
 
 ### Extra links
+
+- https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/tree/master/examples/ldap
+
+- https://github.com/brikis98/terraform-up-and-running-code/tree/2nd-edition/code/terraform
 
 - https://gruntwork.io/
 
 # Conclusion
 
-Why would anyone go with Terraform on Cloudfoundry? TODO: Summarise key concepts and benefits
-
+Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand

@@ -1,4 +1,8 @@
 ✔ Create basic documentation and skeleton of thoughts @high @done(22-07-06 13:04)
-☐ Read basic details in book and to get high level concepts @low
+☐ Read basic details in book and to get high level concepts @high
+    ✔ Chapter 1 @today @done(22-07-06 15:10)
+    ✔ Chapter 2 @today @done(22-07-07 16:42)
+    ☐ Chapter 3 @today
+
 ☐ Find some quick win videos/courses that help understand the basics @low
 ☐ Create a working example that generates an environment that looks and sounds like staging dev @critical
