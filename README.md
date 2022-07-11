@@ -42,14 +42,14 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 - **I**nfrastructure **A**s **C**ode represents a mindset of executing code to _define_, _deploy, update and destroy infrastructure_
 - There are 5 categories of IAC tools
-  - **Adhoc scripts** - Bash, Ruby Python, Powershell
+  - **Adhoc scripts** - Bash, Ruby, Python, Powershell
   - **Configuration management tools** - Chef, Puppet, Ansible and SaltStack
   - **Server templating tools** - Docker, Packer, Vagrant, Virtual Machines or Containers (Immutable infrastructure)
   - **Orchestration tools** - Kubernetes, Marathon, Mesos, Amazon ECS, Docker Swarn or a Pod of Dockers and Nomad
   - **Provisioning tools** - Terraform, Cloud-Formation and Openstack Heat
-- Tf is written in Go, makes API calls to the relevant **API translating** one or more _providers_ consistently, defining entire infrastructure - servers, databases using **H**ashiCorp **C**onfiguration **L**anguage
-- What **Tf is not**, an easy way to just swap between different cloud providers with the same settings, mainly because providers offer different solutions (no easy way to transparently port from one to another)
-- Tf uses a **declarative** approach, meaning it declares how the _desired state_ or end result, where as Puppet uses a **procedural** approach, so it may change what exists versus what you knewly configured
+- Terraform is written in Go, makes API calls to the relevant **API translating** one or more _providers_ consistently, defining entire infrastructure - servers, databases using **H**ashiCorp **C**onfiguration **L**anguage
+- What **Terraform is not**, an easy way to just swap between different cloud providers with the same settings, mainly because providers offer different solutions (no easy way to transparently port from one to another)
+- Terraform uses a **declarative** approach, meaning it declares how the _desired state_ or end result, where as Puppet uses a **procedural** approach, so it may change what exists versus what you knewly configured
 - Procedural approaches also do not take into the account the state and history of the infrastructure, but the down side is that declaritive has no concept of _zero-downtime deployments_ but clever hacks to solve this
 - Tf is one of the youngest IaC tools, making it the least mature
 
@@ -188,7 +188,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 ### Tips, tricks, loops, If statements, Deployment and Gotchas
 
-- 
+- Pg 133 ...
 
 ### How to test Terraform code
 
