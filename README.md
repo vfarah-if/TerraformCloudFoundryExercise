@@ -94,6 +94,15 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
   data.my_app.buildpack
   ```
 
+- **Output** variables `output "NAME" { value = "<PATH>"}`
+
+  ```haskell
+  output "s3_bucket_arn" {
+    value       = aws_s3_bucket.terraform_state.arn
+    description = "The ARN of the S3 bucket"
+  }
+  ```
+
 - **Terraform Actions** `terraform -help`
 
   - `terraform init` Initialise within the folder
@@ -119,12 +128,63 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 ### How to manage Terraform state
 
 - Every time terraform is applied, it records information about the **infrastructure** to *terraform.tfstate* file
+
 - The state file is a private API (only used internally) and should very rarly be manipulated
-- In a team dynamic, utilise lock files
-- Don't store state in source control, will share secrets and other as open text
+
+- In a team dynamic, utilise **lock file**s
+
+- *Don't* store state in **source control**, will share secrets and other as open text
+
 - Configure **remote backends** with *secrets* to store thislike S3 (Simple storage service 99.99% availibilty and durability)
 
+  - ***Limitation*** is a chicken-and-egg situation where this needs to be divided into two steps and same when deleting
+
+- Seperate terraform files to help debug issues, placing in seperate folders or files and **Isolate** via workspaces or file layout
+
+  ```bash
+  terraform workspace new workspace1
+  terraform wokspace list #defaut workspace1
+  ```
+
 ### How to create reusable infrastructure with terraform modules
+
+- Need at least two nearly identical **environments**, *staging* and *production*
+
+- **Module**s are any files in a folder is a module `module "<NAME>" {sourc = "<SOURCE>"}`
+
+  ```haskell
+  module "web_cluster" {
+    cluster_name  = var.cluster_name
+    instance_type = "m4.large"
+    ...
+  }
+  
+  resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
+    scheduled_action_name  = "scale-out-during-business-hours"
+  	...
+    autoscaling_group_name = module.web_cluster.asg_name
+  }
+  ```
+
+- Module **locals** by referencing `local.<name>` `locals{<key> = <value>}`
+
+  ```haskell
+  locals {
+    tcp_protocol = "tcp"
+    all_ips      = ["0.0.0.0/0"]
+  }
+  
+  resource "aws_security_group_rule" "allow_server_http_inbound" {
+    type              = "ingress"
+    ...
+    protocol    = local.tcp_protocol
+    cidr_blocks = local.all_ips
+  }
+  ```
+
+- **Module versioning** can also be done by referencing the module source=<url>?ref=v<major>.<minor>.<patch>
+
+- Advantage of this entire section will be to defined best practises, version stuff for testing by semantically versioning, making this easier to work within teams
 
 ### Tips, tricks, loops, If statements, Deployment and Gotchas
 
@@ -134,7 +194,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 ### The docs
 
-In the root of ths repository, there is an [example.tf](./example/main.tf) file, that can demonstrate syntax highlighting and some resources by area
+In the root of ths repository, there is an [example](./example) file, that can demonstrate syntax highlighting and some resources by area
 
 - [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (_Procfile_ and _runtime.txt_ usually generates some of this) https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest/docs
   - [Cloudfoundry org resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
@@ -159,6 +219,12 @@ In the root of ths repository, there is an [example.tf](./example/main.tf) file,
 - https://github.com/brikis98/terraform-up-and-running-code/tree/2nd-edition/code/terraform
 
 - https://gruntwork.io/
+
+- https://www.clickittech.com/devops/terraform-vs-cloudformation
+
+- [Why cloudfoundry will be replaced soon](https://www.cloudfoundry.org/governing-board/)
+
+- https://aws.amazon.com/blogs/containers/introducing-aws-copilot/
 
 # Conclusion
 
