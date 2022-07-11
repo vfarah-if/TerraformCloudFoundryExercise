@@ -6,7 +6,7 @@ _Statistically_, companies that apply good DevOps practises increase the number 
 
 This is at the heart of chaos engineering and also a very good way of documenting and versioning with speed, safely and reliably. 
 
-Cloudfoundry is the provider I am using, but as you know will be discontinued soon. This is my provider and reason for doing this but the same rules can be applied to other providers.
+Cloudfoundry is the provider I am using, but as you know will be [discontinued](https://techcrunch.com/2021/12/27/whats-next-for-cloud-foundry/) soon. This is my provider and reason for doing this exercise currently, but the same rules can be applied to other providers.
 
 # Get Started with Terraform and cloudfoundry
 
@@ -84,6 +84,16 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
   var.api_url
   ```
 
+- **Data** source, like resource but the name is used as an identifier `data "<PROVIDER_TYPE>" "<NAME>" {[CONFIG ...]}`
+
+  ```haskell
+  data "cloudfoundry_app" "my-app" {
+      name_or_id = "my-app"
+      space      = "space-id"
+  }
+  data.my_app.buildpack
+  ```
+
 - **Terraform Actions** `terraform -help`
 
   - `terraform init` Initialise within the folder
@@ -94,9 +104,9 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
   - `terraform apply` This create or update existing
 
-  - `terraform destroy` Destroy previous infrastructure
+  - `terraform destroy` Destroy previous infrastructure or cleanup, no undo in production and will destroy all resources, so don't do this in production
 
-  - `terraform graph` Create a dependency graph
+  - `terraform graph` Create a dependency graph to see what you create
 
     ![image-20220707163132369](./terraform-help.png)
 
@@ -107,6 +117,12 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 -
 
 ### How to manage Terraform state
+
+- Every time terraform is applied, it records information about the **infrastructure** to *terraform.tfstate* file
+- The state file is a private API (only used internally) and should very rarly be manipulated
+- In a team dynamic, utilise lock files
+- Don't store state in source control, will share secrets and other as open text
+- Configure **remote backends** with *secrets* to store thislike S3 (Simple storage service 99.99% availibilty and durability)
 
 ### How to create reusable infrastructure with terraform modules
 
@@ -146,4 +162,4 @@ In the root of ths repository, there is an [example.tf](./example/main.tf) file,
 
 # Conclusion
 
-Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand
+Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand. If Cloudfoundry was to continue, I would absolutely go this way, but as this will
