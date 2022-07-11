@@ -1,6 +1,6 @@
 # Introduction
 
-Why Terraform? DevOps is transforming the way we run software, the benefits of _infrastructure as code_ is becoming more obvious in how we can provision entire environments without manually needing to do anything, with tests and debugging to help setup idempotence, conventions and distibution in all environments. There is also a concept known as _configuration drift_, where an environment differs from others, and will end up as a snowflak serve. As the company grows, this will become more problematic.
+Why Terraform? DevOps is transforming the way we run software, the benefits of _infrastructure as code_ is becoming more obvious in how we can provision entire environments without manually needing to do anything, with tests and debugging to help setup idempotence, conventions and distibution in all environments. There is also a concept known as _configuration drift_, where an environment differs from others, and will end up as a snowflake server. As the company grows, this will become more problematic.
 
 _Statistically_, companies that apply good DevOps practises increase the number of features delivered by 100%, reduce lead times (the time coming up with an idea to running code in production) by 60%, and reduce production incidents by 60 to 90%.
 
@@ -123,8 +123,6 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
   ![image-20220707154103262](./gitignore-config.png)
 
--
-
 ### How to manage Terraform state
 
 - Every time terraform is applied, it records information about the **infrastructure** to *terraform.tfstate* file
@@ -188,9 +186,11 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 ### Tips, tricks, loops, If statements, Deployment and Gotchas
 
+- 
+
 ### How to test Terraform code
 
-### Terraform and the CICD depoloyment process
+### Terraform and the CICD deployment process
 
 ### The docs
 
@@ -206,7 +206,6 @@ In the root of ths repository, there is an [example](./example) file, that can d
 ### The videos
 
 - [Terraform Providers for Cloud Foundry - Guillaume Berche, Orange & Mevan Samaratunga, Pivotal](https://www.youtube.com/watch?v=JonQqWHofms)
-- TODO more if any resources available
 
 ### The book
 
@@ -228,4 +227,4 @@ In the root of ths repository, there is an [example](./example) file, that can d
 
 # Conclusion
 
-Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand. If Cloudfoundry was to continue, I would absolutely go this way, but as this will
+Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand. Cloudfoundry is about to be discontinued, probably for something just as easy to edit and use, so as a provider for Terraform, I would stop using this, maybe focus on AWS or AWS copilot, trying to find parity with Cloudfoundry ease of deployment.
