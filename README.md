@@ -121,6 +121,8 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
     ![image-20220707163132369](./terraform-help.png)
 
+  <img src="./project-workflow.png" alt="Provision Workflow" style="zoom:67%;" />
+
 - **Note** Terraform keeps track of the **state** or resources that are already deployed. Setup gitignore if you don't want that stored in GIT
 
   ![image-20220707154103262](./gitignore-config.png)
@@ -141,7 +143,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 - Seperate terraform files to help debug issues, placing in seperate folders or files and **Isolate** via workspaces or file layout
 
-  ```bash
+  ```haskell
   terraform workspace new workspace1
   terraform wokspace list #defaut workspace1
   ```
@@ -188,7 +190,41 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 ### Tips, tricks, loops, If statements, Deployment and Gotchas
 
-- Pg 133 ...
+- In a declarative language, this is how primitives are defined
+
+  #### Loops
+
+  - Terraform offers several looping constructs
+
+    - **count** parameter to loop over resources but not inline loops
+
+      ```haskell
+      resource "aws_iam_user" "test_user" {
+      	count = 3
+      	name = "user_${count.index}"
+      }
+      ```
+
+    - **for_each** expressions, to loop over resources and inline blocks within a resource
+
+    - **for** expressions, to loop over lists and maps
+
+    - **for** string directive, to loop over lists and maps within a string
+
+    - **Array lookup** syntax or **length** function <PROVIDER>_<TYPE>.<NAME>[INDEX].ATTRIBUTE
+
+      ```haskell
+      variable "user_names" {
+      	type = list(string)
+      	default = ["neo", "morpheus"]
+      }
+      var user_names[1]
+      count = length()
+      ```
+
+    - 
+
+  
 
 ### How to test Terraform code
 
@@ -224,6 +260,8 @@ In the root of ths repository, there is an [example](./example) file, that can d
 - https://www.clickittech.com/devops/terraform-vs-cloudformation
 
 - [Why cloudfoundry will be replaced soon](https://www.cloudfoundry.org/governing-board/)
+
+- https://gds.blog.gov.uk/2022/07/12/why-weve-decided-to-decommission-gov-uk-paas-platform-as-a-service/
 
 - https://aws.amazon.com/blogs/containers/introducing-aws-copilot/
 
