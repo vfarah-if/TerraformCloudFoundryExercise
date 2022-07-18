@@ -121,7 +121,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
     ![image-20220707163132369](./terraform-help.png)
 
-  <img src="./project-workflow.png" alt="Provision Workflow" style="zoom:67%;" />
+  ![project-workflow](./project-workflow.png)
 
 - **Note** Terraform keeps track of the **state** or resources that are already deployed. Setup gitignore if you don't want that stored in GIT
 
@@ -177,7 +177,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
   }
   
   resource "aws_security_group_rule" "allow_server_http_inbound" {
-    type              = "ingress"
+    type        = "ingress"
     ...
     protocol    = local.tcp_protocol
     cidr_blocks = local.all_ips
@@ -199,7 +199,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
     - **count** parameter to loop over resources but not inline loops
 
       ```haskell
-      resource "aws_iam_user" "test_user" {
+      resource "<PROVIDER>_<TYPE>" "<NAME>" {
       	count = 3
       	name = "user_${count.index}"
       }
@@ -207,9 +207,12 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
     - **for_each** expressions, to loop over resources and inline blocks within a resource
 
-    - **for** expressions, to loop over lists and maps
-
-    - **for** string directive, to loop over lists and maps within a string
+      ```haskell
+      resource "<PROVIDER>_<TYPE>" "<NAME>" {
+      	for_each = toset(var.user_names)
+      	name = each.value
+      }
+      ```
 
     - **Array lookup** syntax or **length** function <PROVIDER>_<TYPE>.<NAME>[INDEX].ATTRIBUTE
 
@@ -219,8 +222,75 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
       	default = ["neo", "morpheus"]
       }
       var user_names[1]
-      count = length()
+      count = length(user_names)
       ```
+
+    - **Dynamic** for generating inline blocks
+
+      ```haskell
+      dynamic "<VAR_NAME>" {
+      	content {
+      		...
+      	}
+      }
+      
+      resource "aws_autoscaling_group" "example" {
+      	...
+      	dynamic "tag" {
+      		for_each = var.custom_tags
+      		contant {
+      			key 	= tag.key
+      			value = tag.value
+      			propagate_at_launch = true
+      		}
+      	}
+      }
+      ```
+
+    - **Loops with expressions** like [for <ITEM> or <KEY>,<VALUE> in <LIST> : <OUTPUT>]
+
+      ```haskell
+      variable "names" {
+      	type 		= list(string)
+      	default	= ["name_1", "name_2"]
+      }
+      
+      output "upper_names" {
+      	value = [for name in var.names: upper(name)]
+      }
+      
+      or
+      
+      output "bios" {
+      	value = [for name, role in var.supervisors: "${name} is in the ${role}"]
+      }
+      ```
+
+    - **Loops with string directive** allow reference to code`%{ for <ITEM> in <COLLECTION> }<BODY>%{endfor}`
+
+      ```haskell
+      output "for_directive_remove_marker" {
+      	value = <<EOF
+      	%{~ for name in var.names}
+      		${name}
+      	%{~ endfor}
+      	EOF
+      }
+      ```
+
+    - **Conditionals** can be ued with all the loops above differently as *ternary* style values
+
+      ```
+      variable "is_enabled" {
+      	type	= bool
+      }
+      # So setting count to 0 will generate nothing
+      resource "some_resource" {
+      	count = var.is_enabled ? 1 : 0
+      }
+      ```
+
+      
 
     - 
 
