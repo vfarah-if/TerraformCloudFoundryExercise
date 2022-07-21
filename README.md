@@ -46,7 +46,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
   - **Configuration management tools** - Chef, Puppet, Ansible and SaltStack
   - **Server templating tools** - Docker, Packer, Vagrant, Virtual Machines or Containers (Immutable infrastructure)
   - **Orchestration tools** - Kubernetes, Marathon, Mesos, Amazon ECS, Docker Swarn or a Pod of Dockers and Nomad
-  - **Provisioning tools** - Terraform, Cloud-Formation and Openstack Heat
+  - **Provisioning tools** - /Users/farahvi/Dev/uktrade/rtfm/docs/playbooks/dnb-service.rst
 - Terraform is written in Go, makes API calls to the relevant **API translating** one or more _providers_ consistently, defining entire infrastructure - servers, databases using **H**ashiCorp **C**onfiguration **L**anguage
 - What **Terraform is not**, an easy way to just swap between different cloud providers with the same settings, mainly because providers offer different solutions (no easy way to transparently port from one to another)
 - Terraform uses a **declarative** approach, meaning it declares how the _desired state_ or end result, where as Puppet uses a **procedural** approach, so it may change what exists versus what you knewly configured
@@ -118,8 +118,6 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
   - `terraform destroy` Destroy previous infrastructure or cleanup, no undo in production and will destroy all resources, so don't do this in production
 
   - `terraform graph` Create a dependency graph to see what you create
-
-    ![image-20220707163132369](./terraform-help.png)
 
   ![project-workflow](./project-workflow.png)
 
@@ -290,10 +288,24 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
       }
       ```
 
+    - **Conditionals** with the if String Directive `%{ if <CONDITION> }<TRUEVAL>%{ else }<FALSEVAL>%{ endif }`
+
+      ```haskell
+      variable  "name" {
+      	type = string
+      }
       
+      output "if_else_directive" {
+      	value = "Hello, %{ if var.name != "" }${var.name}%{ else }(unamed)%{ endif }"
+      }
+      ```
 
-    - 
-
+    - **Zero-Down deployment** to *update* a clusterso no down time will occur e.g. **A**mazon **M**achine **I**mage
+    
+      1. Expose the AMI as an **input variable** in either a module/service/webseverver-cluster/vairiable.tf
+      2. Utilise the Conditionals above to acheive this
+    
+  
   
 
 ### How to test Terraform code
@@ -305,11 +317,11 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 In the root of ths repository, there is an [example](./example) file, that can demonstrate syntax highlighting and some resources by area
 
 - [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (_Procfile_ and _runtime.txt_ usually generates some of this) https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest/docs
-  - [Cloudfoundry org resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
-  - [Cloudfoundry space resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/space.md)
-  - [Cloudfoundry app resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/app.md)
-  - [Cloudfoundry service resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/service_key.md)
-  - [Cloudfoundry build pack](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/buildpack.md) (stored in runtime.txt file in deployed app)
+  - [Cloudfoundry **org** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
+  - [Cloudfoundry **space** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/space.md)
+  - [Cloudfoundry **app** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/app.md)
+  - [Cloudfoundry **service** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/service_key.md)
+  - [Cloudfoundry **build pack**](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/buildpack.md) (stored in runtime.txt file in deployed app)
 
 ### The videos
 
