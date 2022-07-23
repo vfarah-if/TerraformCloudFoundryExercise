@@ -24,15 +24,20 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
    terraform --version	# >Terraform v1.2.4 on darwin_amd64
    ```
 
-2. Download **cloud foundry [terraform provider](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry)** which can be done at https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/wiki like below or do it manually based on the
+2. Create a *provider script* requiring and restricting the version of terraform downloaded, as well as the latest [cloud foundry provider](https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest)
 
-   ```bash
-   bash -c "$(curl -fsSL https://raw.github.com/cloudfoundry-community/terraform-provider-cloudfoundry/master/bin/install.sh)"
+   ```haskell
+   required_providers {
+       cloudfoundry = {
+         source = "cloudfoundry-community/cloudfoundry"
+         version = "0.15.3"
+       }
+     }
    ```
 
-   ![image-20220705212222253](./terraform-cloudfoundry-provider.png)
-
 3. Initialise cloudfoundry provider `terraform init`
+
+   ![image-20220723233439711](./terraform-init.png)
 
 4. Setup an IDE like IntelliJ or _VSCode_ with terraform plugins and syntax highlighting
 

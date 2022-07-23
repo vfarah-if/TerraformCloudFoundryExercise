@@ -2,8 +2,8 @@ terraform {
   required_version = "~> 1.2.4"
   required_providers {
     cloudfoundry = {
-      source = "registry.terraform.io/hashicorp/cloudfoundry"
-      version = "0.12.3"
+      source = "cloudfoundry-community/cloudfoundry"
+      version = "0.15.3"
     }
   }
 }
