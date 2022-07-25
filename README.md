@@ -8,7 +8,11 @@ _Statistically_, companies that apply good DevOps practises increase the number 
 
 This is at the heart of chaos engineering and also a very good way of documenting and versioning with speed, safely and reliably. 
 
-Cloudfoundry is the provider I am using, but as you know will be [discontinued](https://techcrunch.com/2021/12/27/whats-next-for-cloud-foundry/) soon. This is my provider and reason for doing this exercise currently, but the same rules can be applied to other providers.
+[Cloud Foundry](https://docs.cloudfoundry.org/concepts/overview.html) is the provider I am using, but as you know will be [discontinued](https://techcrunch.com/2021/12/27/whats-next-for-cloud-foundry/) soon. This is my provider and reason for doing this exercise currently, but the same rules can be applied to other providers.
+
+[TOC]
+
+![Cloud Foundry Routing Architecture | Cloud Foundry Docs](./cf-routing-architecture.png)
 
 # Get Started with Terraform and cloudfoundry
 
@@ -306,12 +310,90 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
       ```
 
     - **Zero-Down deployment** to *update* a clusterso no down time will occur e.g. **A**mazon **M**achine **I**mage
-    
-      1. Expose the AMI as an **input variable** in either a module/service/webseverver-cluster/vairiable.tf
-      2. Utilise the Conditionals above to acheive this
-    
-  
-  
+
+      1. Expose the <Type> as an **input variable** in either a module/service/webseverver-cluster/vairiable.tf
+
+         ```haskell
+         variable "server_text" {
+         	description = "The AMI to run within the cluster"
+         	...
+         }
+         ```
+
+      2. Create adata segment to load data from from a shell script
+
+         ```haskell
+         data "template_file" "user_data" {
+         	template = file("${path.module}/user-data.sh")
+         	vars = {
+         		server_port = var.server_port
+         		db_address  = data.terraform_remote_state.db.outputs.address
+         		db_port  		= data.terraform_remote_state.db.outputs.port
+             server_text = var.server_text		
+         	}
+         }
+         ```
+
+      3. Launch a resource with the *main.tf* file referencing the above template file *user_data* to store
+
+         ```haskell
+         resource "aws_launch_config" "example" {
+         	image_id 		= var.ami
+         	...
+         	user_data 	= data.template_file._user_data
+         	lifecycle {
+         		create_before_destroy = true			
+         	}
+         }
+         ```
+
+      4. The problem is at the point there would be downtime, because of the above *lifecycle*, by configuring the name parameter with a replacement so the *create_before_destroy* event will replace (make sure you set the *min_elb_capacity*)
+
+         ```haskell
+         		resource "aws_autoscaling_group" "example" {
+         			name= "Something with the ASG name that gets replaced"
+         			...
+         			min_elb_capcity = var.min_size # Wait for health checks
+         			...
+         		}
+         ```
+
+- Terraform does have limitations on count and for_each, zero-downtime deployment, and valid plans can fail, refactoring can be tricky
+
+- If you want to change identifiers without accidently deleting  and recreating resources, you will have to change the state file
+
+- Some cloud providers are asynchronous therefore making it problematic to get resources until they are created, it takes time, especially when a new type is created, just rerun *terraform.apply*
+
+### Production-Grade Terraform Code
+
+- *1 -2 weeks*, minimum for MYSQL using AWS RDS to be production ready
+
+- *2-4 weeks* Node JS with **A**uto **S**caling **G**roup
+
+- *2-4 months* with Amazon ES
+
+- *6 - 36 months* for entire architecture including apps, datastore, load balancers, monitoring, alerting, security ...
+
+  ![DevOps is a culture, not a role!. Software is everywhere. In today's… | by  Irma Harlann | Medium](./devops-process.png)
+
+- **Why** does it take so long?
+
+  - [**Cone of uncertainty**](https://en.wikipedia.org/wiki/Cone_of_Uncertainty) with devops projects usually doubles
+  - Devops is still an industry in the **stone ages**, meaning *Terraform, Kubernetes, Docker, Packer* only released in 2010's
+  - **Yak shaving**, or all the small and unrelated taks that must be done before you can do the one you wanted to do in the first place, the consequence of the immaturity of devops tech, tight coupling and duplication of infrastructure or **accidental complexity**
+  - **Essential complexity**, a genuinly long checklist for tasks that need to be done to prepare infrastructure
+
+- **Production grade checklist**
+
+  ![The Production-Grade Infrastructure Checklist – Code of Joy](./infrastructure-checklist.png)
+
+- Production grade modules:
+
+  - Small modules
+  - Composable modules
+  - Testable modules
+  - Releasable modules
+  - Beyond terraform modules
 
 ### How to test Terraform code
 
@@ -354,4 +436,4 @@ In the root of ths repository, there is an [example](./example) file, that can d
 
 # Conclusion
 
-Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand. Cloudfoundry is about to be discontinued, probably for something just as easy to edit and use, so as a provider for Terraform, I would stop using this, maybe focus on AWS or AWS copilot, trying to find parity with Cloudfoundry ease of deployment.
+Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand. There are several gotchas that you will need to stumble into with experience, some issues about always being behind some providers but the end result is worth learning so you can provide the same experience with several huge providers
