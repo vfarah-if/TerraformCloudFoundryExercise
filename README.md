@@ -1,3 +1,7 @@
+[TOC]
+
+------
+
 # Introduction
 
 ![image-20220711221347187](./terraform.png)
@@ -10,7 +14,7 @@ This is at the heart of chaos engineering and also a very good way of documentin
 
 [Cloud Foundry](https://docs.cloudfoundry.org/concepts/overview.html) is the provider I am using, but as you know will be [discontinued](https://techcrunch.com/2021/12/27/whats-next-for-cloud-foundry/) soon. This is my provider and reason for doing this exercise currently, but the same rules can be applied to other providers.
 
-[TOC]
+
 
 ![Cloud Foundry Routing Architecture | Cloud Foundry Docs](./cf-routing-architecture.png)
 
@@ -28,7 +32,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
    terraform --version	# >Terraform v1.2.4 on darwin_amd64
    ```
 
-2. Create a *provider script* requiring and restricting the version of terraform downloaded, as well as the latest [cloud foundry provider](https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest)
+2. Create a **provider script** requiring and restricting the version of terraform downloaded, as well as the latest [cloud foundry provider](https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest)
 
    ```haskell
    required_providers {
@@ -43,7 +47,7 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
    ![image-20220723233439711](./terraform-init.png)
 
-4. Setup an IDE like IntelliJ or _VSCode_ with terraform plugins and syntax highlighting
+4. Setup an IDE like Intelli-J or _VSCode_ with terraform plugins and syntax highlighting
 
    ![image-20220705215417337](./vs-code-extension.png)
 
@@ -138,13 +142,13 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 - Every time terraform is applied, it records information about the **infrastructure** to *terraform.tfstate* file
 
-- The state file is a private API (only used internally) and should very rarly be manipulated
+- The state file is a **private API** (only used internally) and should very rarly be manipulated
 
 - In a team dynamic, utilise **lock file**s
 
 - *Don't* store state in **source control**, will share secrets and other as open text
 
-- Configure **remote backends** with *secrets* to store thislike S3 (Simple storage service 99.99% availibilty and durability)
+- Configure **remote backends** with *secrets* to store this like a secured S3 (Simple storage service 99.99% availibilty and durability)
 
   - ***Limitation*** is a chicken-and-egg situation where this needs to be divided into two steps and same when deleting
 
@@ -193,176 +197,172 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
 - **Module versioning** can also be done by referencing the module source=<url>?ref=v<major>.<minor>.<patch>
 
-- Advantage of this entire section will be to defined best practises, version stuff for testing by semantically versioning, making this easier to work within teams
-
 ### Tips, tricks, loops, If statements, Deployment and Gotchas
 
-- In a declarative language, this is how primitives are defined
+In a declarative language, this is how primitives are defined
 
-  #### Loops
+- Terraform offers several looping constructs
 
-  - Terraform offers several looping constructs
+  - **count** parameter to loop over resources but not inline loops
 
-    - **count** parameter to loop over resources but not inline loops
+    ```haskell
+    resource "<PROVIDER>_<TYPE>" "<NAME>" {
+    	count = 3
+    	name = "user_${count.index}"
+    }
+    ```
 
-      ```haskell
-      resource "<PROVIDER>_<TYPE>" "<NAME>" {
-      	count = 3
-      	name = "user_${count.index}"
-      }
-      ```
+  - **for_each** expressions, to loop over resources and inline blocks within a resource
 
-    - **for_each** expressions, to loop over resources and inline blocks within a resource
+    ```haskell
+    resource "<PROVIDER>_<TYPE>" "<NAME>" {
+    	for_each = toset(var.user_names)
+    	name = each.value
+    }
+    ```
 
-      ```haskell
-      resource "<PROVIDER>_<TYPE>" "<NAME>" {
-      	for_each = toset(var.user_names)
-      	name = each.value
-      }
-      ```
+  - **Array lookup** syntax or **length** function <PROVIDER>_<TYPE>.<NAME>[INDEX].ATTRIBUTE
 
-    - **Array lookup** syntax or **length** function <PROVIDER>_<TYPE>.<NAME>[INDEX].ATTRIBUTE
+    ```haskell
+    variable "user_names" {
+    	type = list(string)
+    	default = ["neo", "morpheus"]
+    }
+    var user_names[1]
+    count = length(user_names)
+    ```
 
-      ```haskell
-      variable "user_names" {
-      	type = list(string)
-      	default = ["neo", "morpheus"]
-      }
-      var user_names[1]
-      count = length(user_names)
-      ```
+  - **Dynamic** for generating inline blocks
 
-    - **Dynamic** for generating inline blocks
+    ```haskell
+    dynamic "<VAR_NAME>" {
+    	content {
+    		...
+    	}
+    }
+    
+    resource "aws_autoscaling_group" "example" {
+    	...
+    	dynamic "tag" {
+    		for_each = var.custom_tags
+    		contant {
+    			key 	= tag.key
+    			value = tag.value
+    			propagate_at_launch = true
+    		}
+    	}
+    }
+    ```
 
-      ```haskell
-      dynamic "<VAR_NAME>" {
-      	content {
-      		...
-      	}
-      }
-      
-      resource "aws_autoscaling_group" "example" {
-      	...
-      	dynamic "tag" {
-      		for_each = var.custom_tags
-      		contant {
-      			key 	= tag.key
-      			value = tag.value
-      			propagate_at_launch = true
-      		}
-      	}
-      }
-      ```
+  - **Loops with expressions** like [for <ITEM> or <KEY>,<VALUE> in <LIST> : <OUTPUT>]
 
-    - **Loops with expressions** like [for <ITEM> or <KEY>,<VALUE> in <LIST> : <OUTPUT>]
+    ```haskell
+    variable "names" {
+    	type 		= list(string)
+    	default	= ["name_1", "name_2"]
+    }
+    
+    output "upper_names" {
+    	value = [for name in var.names: upper(name)]
+    }
+    
+    or
+    
+    output "bios" {
+    	value = [for name, role in var.supervisors: "${name} is in the ${role}"]
+    }
+    ```
 
-      ```haskell
-      variable "names" {
-      	type 		= list(string)
-      	default	= ["name_1", "name_2"]
-      }
-      
-      output "upper_names" {
-      	value = [for name in var.names: upper(name)]
-      }
-      
-      or
-      
-      output "bios" {
-      	value = [for name, role in var.supervisors: "${name} is in the ${role}"]
-      }
-      ```
+  - **Loops with string directive** allow reference to code`%{ for <ITEM> in <COLLECTION> }<BODY>%{endfor}`
 
-    - **Loops with string directive** allow reference to code`%{ for <ITEM> in <COLLECTION> }<BODY>%{endfor}`
+    ```haskell
+    output "for_directive_remove_marker" {
+    	value = <<EOF
+    	%{~ for name in var.names}
+    		${name}
+    	%{~ endfor}
+    	EOF
+    }
+    ```
 
-      ```haskell
-      output "for_directive_remove_marker" {
-      	value = <<EOF
-      	%{~ for name in var.names}
-      		${name}
-      	%{~ endfor}
-      	EOF
-      }
-      ```
+  - **Conditionals** can be ued with all the loops above differently as *ternary* style values
 
-    - **Conditionals** can be ued with all the loops above differently as *ternary* style values
+    ```
+    variable "is_enabled" {
+    	type	= bool
+    }
+    # So setting count to 0 will generate nothing
+    resource "some_resource" {
+    	count = var.is_enabled ? 1 : 0
+    }
+    ```
 
-      ```
-      variable "is_enabled" {
-      	type	= bool
-      }
-      # So setting count to 0 will generate nothing
-      resource "some_resource" {
-      	count = var.is_enabled ? 1 : 0
-      }
-      ```
+  - **Conditionals** with the if String Directive `%{ if <CONDITION> }<TRUEVAL>%{ else }<FALSEVAL>%{ endif }`
 
-    - **Conditionals** with the if String Directive `%{ if <CONDITION> }<TRUEVAL>%{ else }<FALSEVAL>%{ endif }`
+    ```haskell
+    variable  "name" {
+    	type = string
+    }
+    
+    output "if_else_directive" {
+    	value = "Hello, %{ if var.name != "" }${var.name}%{ else }(unamed)%{ endif }"
+    }
+    ```
 
-      ```haskell
-      variable  "name" {
-      	type = string
-      }
-      
-      output "if_else_directive" {
-      	value = "Hello, %{ if var.name != "" }${var.name}%{ else }(unamed)%{ endif }"
-      }
-      ```
+  - **Zero-Down deployment** to *update* a clusterso no down time will occur e.g. **A**mazon **M**achine **I**mage
 
-    - **Zero-Down deployment** to *update* a clusterso no down time will occur e.g. **A**mazon **M**achine **I**mage
+    1. Expose the <Type> as an **input variable** in either a module/service/webseverver-cluster/vairiable.tf
 
-      1. Expose the <Type> as an **input variable** in either a module/service/webseverver-cluster/vairiable.tf
+       ```haskell
+       variable "server_text" {
+       	description = "The AMI to run within the cluster"
+       	...
+       }
+       ```
 
-         ```haskell
-         variable "server_text" {
-         	description = "The AMI to run within the cluster"
-         	...
-         }
-         ```
+    2. Create adata segment to load data from from a shell script
 
-      2. Create adata segment to load data from from a shell script
+       ```haskell
+       data "template_file" "user_data" {
+       	template = file("${path.module}/user-data.sh")
+       	vars = {
+       		server_port = var.server_port
+       		db_address  = data.terraform_remote_state.db.outputs.address
+       		db_port  		= data.terraform_remote_state.db.outputs.port
+           server_text = var.server_text		
+       	}
+       }
+       ```
 
-         ```haskell
-         data "template_file" "user_data" {
-         	template = file("${path.module}/user-data.sh")
-         	vars = {
-         		server_port = var.server_port
-         		db_address  = data.terraform_remote_state.db.outputs.address
-         		db_port  		= data.terraform_remote_state.db.outputs.port
-             server_text = var.server_text		
-         	}
-         }
-         ```
+    3. Launch a resource with the *main.tf* file referencing the above template file *user_data* to store
 
-      3. Launch a resource with the *main.tf* file referencing the above template file *user_data* to store
+       ```haskell
+       resource "aws_launch_config" "example" {
+       	image_id 		= var.ami
+       	...
+       	user_data 	= data.template_file._user_data
+       	lifecycle {
+       		create_before_destroy = true			
+       	}
+       }
+       ```
 
-         ```haskell
-         resource "aws_launch_config" "example" {
-         	image_id 		= var.ami
-         	...
-         	user_data 	= data.template_file._user_data
-         	lifecycle {
-         		create_before_destroy = true			
-         	}
-         }
-         ```
+    4. The problem is at the point there would be downtime, because of the above *lifecycle*, by configuring the name parameter with a replacement so the *create_before_destroy* event will replace (make sure you set the *min_elb_capacity*)
 
-      4. The problem is at the point there would be downtime, because of the above *lifecycle*, by configuring the name parameter with a replacement so the *create_before_destroy* event will replace (make sure you set the *min_elb_capacity*)
+       ```haskell
+       		resource "aws_autoscaling_group" "example" {
+       			name= "Something with the ASG name that gets replaced"
+       			...
+       			min_elb_capcity = var.min_size # Wait for health checks
+       			...
+       		}
+       ```
 
-         ```haskell
-         		resource "aws_autoscaling_group" "example" {
-         			name= "Something with the ASG name that gets replaced"
-         			...
-         			min_elb_capcity = var.min_size # Wait for health checks
-         			...
-         		}
-         ```
+- Terraform does have **limitations** on count and for_each, zero-downtime deployment, and valid plans can fail, refactoring can be tricky
 
-- Terraform does have limitations on count and for_each, zero-downtime deployment, and valid plans can fail, refactoring can be tricky
+- If you want to ***change identifiers** without accidently deleting  and recreating resources, you will have to change the state file (anti pattern doing this and should rarely be done)
 
-- If you want to change identifiers without accidently deleting  and recreating resources, you will have to change the state file
-
-- Some cloud providers are asynchronous therefore making it problematic to get resources until they are created, it takes time, especially when a new type is created, just rerun *terraform.apply*
+- Some cloud providers are **asynchronous**, therefore making it problematic to get resources until they are created. It takes time, especially when a new type is created, just rerun *terraform.apply*
 
 ### Production-Grade Terraform Code
 
@@ -387,17 +387,68 @@ Learn Terraform and Cloudfoundry, an excuse for me to learn Terraform and to sol
 
   ![The Production-Grade Infrastructure Checklist – Code of Joy](./infrastructure-checklist.png)
 
-- Production grade modules:
+- Production grade **modules**:
 
-  - Small modules
-  - Composable modules
-  - Testable modules
-  - Releasable modules
-  - Beyond terraform modules
+  - **Small** modules: 
+
+    - Single file, single module is defined as an bad idea
+    - Large Modules, > 100 lines are considered slow, risky, difficult to read to understand, review and test
+    - The **Principle of Least Privilege** states that a subject should be given only those privileges needed for it to complete its task
+
+  - **Composable** modules
+
+    - Small composable lego blocks sharing areas repeated into modules, try not to duplicate concepts
+
+    - Create a modules folder in the root with a generic area folder and specific instance folder containing main, outputs, variables and readme
+
+      ![image-20220726210650243](/Users/farahvi/Dev/TerraformCloudFoundryExercise/module-folder.png)
+
+    - **Referencing** the module can be done through relative pathing and the source argument and the variables used in the referenced modules
+
+      ```haskell
+      module "rolling-deploy" {
+        source = "../../modules/cluster/asg-rolling-deploy"
+      	...
+      	ami 					= var.ami #variable from module
+      	cluster_name 	= var.cluster_name #variable from module
+      }
+      ```
+
+    - Terraform will be made of **two types of modules** 
+
+      - **Generic** Modules as basic building blocks, reusable to support composition and reuse
+      - **Use-case-specific** Like a specific application mixed with generic modules to service one specific use
+
+  - **Testable** modules
+
+    - **Manual test harness** by using `terraform init` and `apply` to check for errors
+    - **Automated test harness**, see below for more details, done within a test folder
+    - **Executable documentation** by ading a README into every folder so its easy for your team to understand
+    - **Version pinning** or `required_version` and `terraform` element attribute. Plan the version even more strictly for production
+
+  - **Releasable** modules
+
+    - `terraform apply` will deploy a versioned module i.e. if you use a `?ref` to version a module checked into a public github repo by a tag
+
+      ```haskell
+      module "webserver_cluster" {
+        source = "github.com/brikis98/terraform-up-and-running-code//code/terraform/04-terraform-module/module-example/modules/services/webserver-cluster?ref=v0.3.0"
+      
+      ```
+
+    - The repo must be **named** terraform-<PROVIDER>-<NAME>
+
+    - The module must follow a **specific file structure**, including defining Terraform code in the root of the repo, prividing a *README*, and using the conventions of *main.tf, variables.tf and outputs.tf*
+
+    - The repo must use **Git tags** with semantic versioning
+
+  - **Beyond** terraform modules
 
 ### How to test Terraform code
 
 ### Terraform and the CICD deployment process
+
+# Learning Resources
 
 ### The docs
 
