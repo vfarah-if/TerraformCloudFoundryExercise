@@ -442,9 +442,35 @@ In a declarative language, this is how primitives are defined
 
     - The repo must use **Git tags** with semantic versioning
 
-  - **Beyond** terraform modules
-
 ### How to test Terraform code
+
+- Devops has fear for downtime, data loss or security breaches
+- The goal of testing is to give confidence of changes
+- Manual tests
+  - When testing Terraform, there is **no localhost**, therefore deploying to real environments
+  - `terraform.apply` deploys the  code and you can use [*curl*](https://curl.se/) to test responses
+  - **Validate infrastucture** using tools appropriate for viewing content like a postgress db
+  - Every team should setup an **isolated sandbox** environment so multiple team members
+  - **Cleaning up** after tests, especially in sandbox environments can be done using `terraform destroy`
+    - Cloud-nuke and AWS
+    - Janitor Monkey and the Simian Army Chaos monkey tools (not maintained)
+    - Aws-nuke
+- Automated tests
+  - **Unit tests**: What is a unit in the Terraform world and that is a single composable module
+    - You would probably want to test with something that can give HTTP Server request response stuff
+    - You can't do pure unit testing with terraform, ie they are *integration tests*
+    - **Strategy** for writing the test is:
+      1. Create generic standalone module
+      2. Create an easy to deploy module
+      3. `terraform apply` it into a real environment
+      4. Validate that it worked and with the specific type of infrastructure and ask how would I have tested it manually to get it to work
+      5. `terraform destroy` to clean up
+    - [**Install GO**](https://go.dev/doc/install) language
+      - Configure GOPATH
+      - many other instructions, details in the link above
+  - Integration tests
+  - End-to-end tests
+- 
 
 ### Terraform and the CICD deployment process
 
