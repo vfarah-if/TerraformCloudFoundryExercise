@@ -479,6 +479,8 @@ In a declarative language, this is how primitives are defined
 
       - [Get started](https://go.dev/doc/tutorial/getting-started) with go tutorial will help setting up the basics
 
+      - Learn some more basic go syntax at https://www.w3schools.com/go/index.php
+
       - You must have [Terraform](https://www.terraform.io/) installed on your computer.
 
       - Many other instructions, details in the link above
@@ -490,18 +492,22 @@ In a declarative language, this is how primitives are defined
         import (
         	"fmt"
         	"testing"
+        	"github.com/stretchr/testify/require"
         )
         
         func TestGoIsWorking(t *testing.T) {
         	fmt.Println()
         	fmt.Println("If you see this text, it's working!")
-        	fmt.Println()
+        	fmt.Println()	
+        	var actual bool = true
+        	require.Equal(t, actual, true)
+        	require.not.Equal(t, actual, false))	
         }
         
         // go test go_sanity_test.go
         ```
 
-      - A real AWS test disected
+      - A real AWS test as an example
 
         ```go
         package test
@@ -557,53 +563,18 @@ In a declarative language, this is how primitives are defined
         		maxRetries,
         		timeBetweenRetries,
         	)
-        
         }
-        
-        func TestAlbExamplePlan(t *testing.T) {
-        	t.Parallel()
-        
-        	albName := fmt.Sprintf("test-%s", random.UniqueId())
-        
-        	opts := &terraform.Options{
-        		// You should update this relative path to point at your alb
-        		// example directory!
-        		TerraformDir: "../examples/alb",
-        		Vars: map[string]interface{}{
-        			"alb_name": albName,
-        		},
-        	}
-        
-        	planString := terraform.InitAndPlan(t, opts)
-        
-        	// An example of how to check the plan output's add/change/destroy counts
-        	resourceCounts := terraform.GetResourceCount(t, planString)
-        	require.Equal(t, 5, resourceCounts.Add)
-        	require.Equal(t, 0, resourceCounts.Change)
-        	require.Equal(t, 0, resourceCounts.Destroy)
-        
-        	// An example of how to check specific values in the plan output
-        	planStruct :=
-        		terraform.InitAndPlanAndShowWithStructNoLogTempPlanFile(t, opts)
-        
-        	alb, exists :=
-        		planStruct.ResourcePlannedValuesMap["module.alb.aws_lb.example"]
-        	require.True(t, exists, "aws_lb resource must exist")
-        
-        	name, exists := alb.AttributeValues["name"]
-        	require.True(t, exists, "missing name parameter")
-        	require.Equal(t, albName, name)
-        }
-        
         ```
 
-      - 
+      - The book contains Ruby examples and many others to Deploy
 
-  - Integration tests
+- E2e tests  and integration tests need to follow the test pyramid structure to maintain cost and speed
 
-  - End-to-end tests
+  ![What's Up With testing?](./testing-pyramid.png)
 
-- 
+### How to use Terraform as a team
+
+
 
 ### Terraform and the CICD deployment process
 
