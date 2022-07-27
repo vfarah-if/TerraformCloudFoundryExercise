@@ -445,8 +445,11 @@ In a declarative language, this is how primitives are defined
 ### How to test Terraform code
 
 - Devops has fear for downtime, data loss or security breaches
+
 - The goal of testing is to give confidence of changes
+
 - Manual tests
+
   - When testing Terraform, there is **no localhost**, therefore deploying to real environments
   - `terraform.apply` deploys the  code and you can use [*curl*](https://curl.se/) to test responses
   - **Validate infrastucture** using tools appropriate for viewing content like a postgress db
@@ -455,37 +458,167 @@ In a declarative language, this is how primitives are defined
     - Cloud-nuke and AWS
     - Janitor Monkey and the Simian Army Chaos monkey tools (not maintained)
     - Aws-nuke
+
 - Automated tests
+
   - **Unit tests**: What is a unit in the Terraform world and that is a single composable module
+
     - You would probably want to test with something that can give HTTP Server request response stuff
+
     - You can't do pure unit testing with terraform, ie they are *integration tests*
+
     - **Strategy** for writing the test is:
+
       1. Create generic standalone module
       2. Create an easy to deploy module
       3. `terraform apply` it into a real environment
       4. Validate that it worked and with the specific type of infrastructure and ask how would I have tested it manually to get it to work
       5. `terraform destroy` to clean up
+
     - [**Install GO**](https://go.dev/doc/install) language
-      - Configure GOPATH
-      - many other instructions, details in the link above
+
+      - [Get started](https://go.dev/doc/tutorial/getting-started) with go tutorial will help setting up the basics
+
+      - You must have [Terraform](https://www.terraform.io/) installed on your computer.
+
+      - Many other instructions, details in the link above
+
+        ```go
+        // go_sanity_test.go
+        package test
+        
+        import (
+        	"fmt"
+        	"testing"
+        )
+        
+        func TestGoIsWorking(t *testing.T) {
+        	fmt.Println()
+        	fmt.Println("If you see this text, it's working!")
+        	fmt.Println()
+        }
+        
+        // go test go_sanity_test.go
+        ```
+
+      - A real AWS test disected
+
+        ```go
+        package test
+        
+        import (
+        	"fmt"
+        	"github.com/stretchr/testify/require"
+        
+        	"github.com/gruntwork-io/terratest/modules/http-helper"
+        	"github.com/gruntwork-io/terratest/modules/random"
+        	"github.com/gruntwork-io/terratest/modules/terraform"
+        	"testing"
+        	"time"
+        )
+        
+        func TestAlbExample(t *testing.T) {
+        
+        	t.Parallel()
+        
+        	opts := &terraform.Options{
+        		// You should update this relative path to point at your alb
+        		// example directory!
+        		TerraformDir: "../examples/alb",
+        
+        		Vars: map[string]interface{}{
+        			"alb_name": fmt.Sprintf("test-%s", random.UniqueId()),
+        		},
+        
+        	}
+        
+        	// Clean up everything at the end of the test
+        	defer terraform.Destroy(t, opts)
+        
+        	// Deploy the example
+        	terraform.InitAndApply(t, opts)
+        
+        	// Get the URL of the ALB
+        	albDnsName := terraform.OutputRequired(t, opts, "alb_dns_name")
+        	url := fmt.Sprintf("http://%s", albDnsName)
+        
+        	// Test that the ALB's default action is working and returns a 404
+        	expectedStatus := 404
+        	expectedBody := "404: page not found"
+        	maxRetries := 10
+        	timeBetweenRetries := 10 * time.Second
+        
+        	http_helper.HttpGetWithRetry(
+        		t,
+        		url,
+        		nil,
+        		expectedStatus,
+        		expectedBody,
+        		maxRetries,
+        		timeBetweenRetries,
+        	)
+        
+        }
+        
+        func TestAlbExamplePlan(t *testing.T) {
+        	t.Parallel()
+        
+        	albName := fmt.Sprintf("test-%s", random.UniqueId())
+        
+        	opts := &terraform.Options{
+        		// You should update this relative path to point at your alb
+        		// example directory!
+        		TerraformDir: "../examples/alb",
+        		Vars: map[string]interface{}{
+        			"alb_name": albName,
+        		},
+        	}
+        
+        	planString := terraform.InitAndPlan(t, opts)
+        
+        	// An example of how to check the plan output's add/change/destroy counts
+        	resourceCounts := terraform.GetResourceCount(t, planString)
+        	require.Equal(t, 5, resourceCounts.Add)
+        	require.Equal(t, 0, resourceCounts.Change)
+        	require.Equal(t, 0, resourceCounts.Destroy)
+        
+        	// An example of how to check specific values in the plan output
+        	planStruct :=
+        		terraform.InitAndPlanAndShowWithStructNoLogTempPlanFile(t, opts)
+        
+        	alb, exists :=
+        		planStruct.ResourcePlannedValuesMap["module.alb.aws_lb.example"]
+        	require.True(t, exists, "aws_lb resource must exist")
+        
+        	name, exists := alb.AttributeValues["name"]
+        	require.True(t, exists, "missing name parameter")
+        	require.Equal(t, albName, name)
+        }
+        
+        ```
+
+      - 
+
   - Integration tests
+
   - End-to-end tests
+
 - 
 
 ### Terraform and the CICD deployment process
 
 # Learning Resources
 
-### The docs
+### The Cloud Foundry Provider docs
 
 In the root of ths repository, there is an [example](./example) file, that can demonstrate syntax highlighting and some resources by area
 
-- [Cloudfoundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (_Procfile_ and _runtime.txt_ usually generates some of this) https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest/docs
-  - [Cloudfoundry **org** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
-  - [Cloudfoundry **space** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/space.md)
-  - [Cloudfoundry **app** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/app.md)
-  - [Cloudfoundry **service** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/service_key.md)
-  - [Cloudfoundry **build pack**](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/buildpack.md) (stored in runtime.txt file in deployed app)
+- [Cloud Foundry terraform community](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/index.md) (_Procfile_ and _runtime.txt_ usually generates some of this) https://registry.terraform.io/providers/cloudfoundry-community/cloudfoundry/latest/docs
+  - [**org** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/org.md)
+  - [**space** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/space.md)
+  - [**app** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/app.md)
+  - [**service** resource](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/service_key.md)
+  - [**build pack**](https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/blob/master/docs/resources/buildpack.md) (stored in runtime.txt file in deployed app)
 
 ### The videos
 
