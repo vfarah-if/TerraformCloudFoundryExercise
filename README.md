@@ -245,7 +245,7 @@ In a declarative language, this is how primitives are defined
     	...
     	dynamic "tag" {
     		for_each = var.custom_tags
-    		contant {
+    		content {
     			key 	= tag.key
     			value = tag.value
     			propagate_at_launch = true
@@ -287,7 +287,7 @@ In a declarative language, this is how primitives are defined
 
   - **Conditionals** can be ued with all the loops above differently as *ternary* style values
 
-    ```
+    ```haskell
     variable "is_enabled" {
     	type	= bool
     }
@@ -320,7 +320,7 @@ In a declarative language, this is how primitives are defined
        }
        ```
 
-    2. Create adata segment to load data from from a shell script
+    2. Create a data segment to load data from a shell script
 
        ```haskell
        data "template_file" "user_data" {
@@ -360,7 +360,7 @@ In a declarative language, this is how primitives are defined
 
 - Terraform does have **limitations** on count and for_each, zero-downtime deployment, and valid plans can fail, refactoring can be tricky
 
-- If you want to ***change identifiers** without accidently deleting  and recreating resources, you will have to change the state file (anti pattern doing this and should rarely be done)
+- If you want to **change identifiers** without accidently deleting  and recreating resources, you will have to change the state file (anti pattern doing this and should rarely be done)
 
 - Some cloud providers are **asynchronous**, therefore making it problematic to get resources until they are created. It takes time, especially when a new type is created, just rerun *terraform.apply*
 
@@ -501,10 +501,11 @@ In a declarative language, this is how primitives are defined
         	fmt.Println()	
         	var actual bool = true
         	require.Equal(t, actual, true)
-        	require.not.Equal(t, actual, false))	
+        	require.NotEqual(t, actual, false)	
         }
         
         // go test go_sanity_test.go
+        // ok      command-line-arguments  0.200s
         ```
 
       - A real AWS test as an example
@@ -568,15 +569,30 @@ In a declarative language, this is how primitives are defined
 
       - The book contains Ruby examples and many others to Deploy
 
-- E2e tests  and integration tests need to follow the test pyramid structure to maintain cost and speed
+- E2E tests  and integration tests need to follow the test pyramid structure to maintain cost and speed
 
   ![What's Up With testing?](./testing-pyramid.png)
 
 ### How to use Terraform as a team
 
+- You will be dealing with multiple people cuncurrently trying to use, understand and modify the code
 
+- Adopting IAC in your team
 
-### Terraform and the CICD deployment process
+  - **Skills gap**, means the Ops team will spend more time writing large amounts of code, so Ops engineers will be doing software engineering almost full time
+  - **New tools** will need to be introduced to make this easier
+  - **Change in mindset** from managing the infrastructure manually
+  - **Opportunity cost** is something that is needed for one project at the expense of others, so know what the benefits are
+  - Terraform is **multi-cloud**
+  - **Work incrementally** and the key is **incrementalism** is not just splitting the work into small steps, but make it so that every step brings its own value 
+    - Most large software projects fail, three out of four small software projects succeed
+  - Give your team time to learn
+
+- A **workflow for deploying** IAC, will only happen through a deliberate effort
+
+  ![How to use Terraform as a team. Collaboration, coding guidelines, and… | by  Yevgeniy Brikman | Gruntwork](./terraform-workflow.png)
+
+- **Golden rule of terraform**, or a quick healthcheck for run `terraform plan` in each production environment and if nothing changes, all is good and master should be a 1:1 representation
 
 # Learning Resources
 
@@ -595,6 +611,12 @@ In the root of ths repository, there is an [example](./example) file, that can d
 
 - [Terraform Providers for Cloud Foundry - Guillaume Berche, Orange & Mevan Samaratunga, Pivotal](https://www.youtube.com/watch?v=JonQqWHofms)
 
+### The presentation
+
+- The keynote can be found in the [presentation-terraform-cloudfoundry.key](./presentation-terraform-cloudfoundry.key)
+
+  ![image-20220727215729188](./presentation.png)
+
 ### The book
 
 - **Terraform** _Up & running_ writing infrastructure as a code by _Yevgeniy Brakeman_
@@ -602,19 +624,16 @@ In the root of ths repository, there is an [example](./example) file, that can d
 ### Extra links
 
 - https://github.com/cloudfoundry-community/terraform-provider-cloudfoundry/tree/master/examples/ldap
-
 - https://github.com/brikis98/terraform-up-and-running-code/tree/2nd-edition/code/terraform
-
 - https://gruntwork.io/
-
+- https://blog.gruntwork.io/how-to-use-terraform-as-a-team-251bc1104973
 - https://www.clickittech.com/devops/terraform-vs-cloudformation
-
-- [Why cloudfoundry will be replaced soon](https://www.cloudfoundry.org/governing-board/)
-
 - https://gds.blog.gov.uk/2022/07/12/why-weve-decided-to-decommission-gov-uk-paas-platform-as-a-service/
-
 - https://aws.amazon.com/blogs/containers/introducing-aws-copilot/
+- https://terragrunt.gruntwork.io/ for keeping your terraform DRY
 
 # Conclusion
 
-Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the state and end result is easy to understand. There are several gotchas that you will need to stumble into with experience, some issues about always being behind some providers but the end result is worth learning so you can provide the same experience with several huge providers
+Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the final end result is easy to understand. There are several gotchas that you will need to stumble into with experience, some issues about catching with provider changes, but the end result is worth learning so you can provide the same experience with several huge providers
+
+*Represents a mindset of executing code to define, deploy and update infrastructure*
