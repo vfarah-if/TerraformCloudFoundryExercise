@@ -401,7 +401,7 @@ In a declarative language, this is how primitives are defined
 
     - Create a modules folder in the root with a generic area folder and specific instance folder containing main, outputs, variables and readme
 
-      ![image-20220726210650243](/Users/farahvi/Dev/TerraformCloudFoundryExercise/module-folder.png)
+      ![image-20220726210650243](./module-folder.png)
 
     - **Referencing** the module can be done through relative pathing and the source argument and the variables used in the referenced modules
 
