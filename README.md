@@ -380,12 +380,8 @@ In a declarative language, this is how primitives are defined
 
   - [**Cone of uncertainty**](https://en.wikipedia.org/wiki/Cone_of_Uncertainty) with devops projects usually doubles
   - Devops is still an industry in the **stone ages**, meaning *Terraform, Kubernetes, Docker, Packer* only released in 2010's
-  - **Yak shaving**, or all the small and unrelated taks that must be done before you can do the one you wanted to do in the first place, the consequence of the immaturity of devops tech, tight coupling and duplication of infrastructure or **accidental complexity**
-  - **Essential complexity**, a genuinly long checklist for tasks that need to be done to prepare infrastructure
-
-- **Production grade checklist**
-
-  ![The Production-Grade Infrastructure Checklist – Code of Joy](./infrastructure-checklist.png)
+  - **Yak shaving**, or all the small and unrelated tasks that must be done before you can do the one you wanted to do in the first place, the consequence of the immaturity of devops tech, tight coupling and duplication of infrastructure or **accidental complexity**
+  - **Essential complexity**, a genuinly long checklist for tasks that need to be done to prepare infrastructure![The Production-Grade Infrastructure Checklist – Code of Joy](./infrastructure-checklist.png)
 
 - Production grade **modules**:
 
@@ -634,6 +630,6 @@ In the root of ths repository, there is an [example](./example) file, that can d
 
 # Conclusion
 
-Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the final end result is easy to understand. There are several gotchas that you will need to stumble into with experience, some issues about catching with provider changes, but the end result is worth learning so you can provide the same experience with several huge providers
+Why would anyone go with Terraform on Cloudfoundry? The declaritive syntax is easy to work with and the final end result is easy to understand. There are several gotchas that you will need to stumble into with experience, some issues about catching with provider changes, but the end result is worth learning so you can provide the same experience with several huge providers or multi-cloud instances. If you know you will never move from one, like AWS for example, my personal opinion is use the tools that are release by the provider for the one and only reason, you will get the benefit of speed of change and cloud formation does not deliver less.
 
 *Represents a mindset of executing code to define, deploy and update infrastructure*
