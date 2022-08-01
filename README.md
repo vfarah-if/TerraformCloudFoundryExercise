@@ -203,7 +203,7 @@ In a declarative language, this is how primitives are defined
 
 - Terraform offers several looping constructs
 
-  - **count** parameter to loop over resources but not inline loops
+  - **count** parameter to loop over resources but not inline loops. **NOTE** understand it exists, but do not use this, for_each is the preferred loop
 
     ```haskell
     resource "<PROVIDER>_<TYPE>" "<NAME>" {
